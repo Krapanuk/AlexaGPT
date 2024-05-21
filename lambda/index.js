@@ -1,15 +1,10 @@
-/* *
- * This sample demonstrates handling intents from an Alexa skill using the Alexa Skills Kit SDK (v2).
- * Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
- * session persistence, api calls, and more.
- * */
 const Alexa = require('ask-sdk-core');
-const {Configuration, OpenAIApi} = require('openai');
-const keys = require('./Keys');
+const { Configuration, OpenAIApi } = require('openai');
+const keys = require('./Keys');  // Stelle sicher, dass du deinen OpenAI-API-Schlüssel in dieser Datei gespeichert hast
 
 const config = new Configuration({
     apiKey: keys.OPEN_AI_KEY
-})
+});
 
 const openai = new OpenAIApi(config);
 
@@ -18,8 +13,8 @@ const LaunchRequestHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
     handle(handlerInput) {
-        const speakOutput = 'Welcome, you can say Hello or Help. Which would you like to try?';
-
+        const speakOutput = 'Willkommen bei Olli GPT. Du kannst eine Frage stellen!';
+        console.log('LaunchRequestHandler ausgelöst');
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .reprompt(speakOutput)
@@ -32,12 +27,91 @@ const HelloWorldIntentHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'HelloWorldIntent';
     },
-    handle(handlerInput) {
-        const speakOutput = 'Hello World!';
+    async handle(handlerInput) {
+        const defaultPrompt = "Hi! Leider habe ich Deine Frage nicht verstanden";
+        let speakOutput = 'Es gab ein Problem bei der Kommunikation mit ChatGPT. Bitte versuche es erneut.';
+
+        try {
+            console.log(`Sending prompt to ChatGPT: ${defaultPrompt}`);
+            const response = await openai.createChatCompletion({
+                model: "gpt-4o",
+                messages: [
+                    {
+                        "role": "system",
+                        "content": "Du bist mein freundlicher persoenlicher Assistent, der mir alle meine Fragen beantwortet."
+                    },
+                    {
+                        "role": "user",
+                        "content": defaultPrompt
+                    }
+                ],
+                temperature: 0.7,
+                max_tokens: 64,
+                top_p: 1,
+            });
+
+            console.log(`Received response from ChatGPT: ${JSON.stringify(response.data)}`);
+
+            if (response && response.data && response.data.choices && response.data.choices.length > 0) {
+                speakOutput = response.data.choices[0].message.content.trim();
+            } else {
+                console.error('Keine gültige Antwort von ChatGPT erhalten.');
+            }
+        } catch (error) {
+            console.error('Fehler bei der Kommunikation mit der OpenAI-API:', error);
+        }
+
+        console.log(`Antwort an Benutzer: ${speakOutput}`);
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
-            //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
+            .getResponse();
+    }
+};
+
+const AskQuestionIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AskQuestionIntent';
+    },
+    async handle(handlerInput) {
+        const question = handlerInput.requestEnvelope.request.intent.slots.question.value;
+        let speakOutput = 'Es gab ein Problem bei der Kommunikation mit ChatGPT. Bitte versuche es erneut.';
+
+        try {
+            console.log(`User question: ${question}`);
+            const response = await openai.createChatCompletion({
+                model: "gpt-4o",
+                messages: [
+                    {
+                        "role": "system",
+                        "content": "Du bist mein freundlicher persoenlicher Assistent, der mir alle meine Fragen, kurz und knapp in maximal 5 Saetzen, beantwortet."
+                    },
+                    {
+                        "role": "user",
+                        "content": question
+                    }
+                ],
+                temperature: 0.7,
+                max_tokens: 150,
+                top_p: 1,
+            });
+
+            console.log(`Received response from ChatGPT: ${JSON.stringify(response.data)}`);
+
+            if (response && response.data && response.data.choices && response.data.choices.length > 0) {
+                speakOutput = response.data.choices[0].message.content.trim();
+            } else {
+                console.error('Keine gültige Antwort von ChatGPT erhalten.');
+            }
+        } catch (error) {
+            console.error('Fehler bei der Kommunikation mit der OpenAI-API:', error);
+        }
+
+        console.log(`Antwort an Benutzer: ${speakOutput}`);
+
+        return handlerInput.responseBuilder
+            .speak(speakOutput)
             .getResponse();
     }
 };
@@ -48,8 +122,8 @@ const HelpIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
     },
     handle(handlerInput) {
-        const speakOutput = 'You can say hello to me! How can I help?';
-
+        const speakOutput = 'Du kannst Hallo sagen oder eine Frage stellen, um eine Antwort zu erhalten.';
+        console.log('HelpIntentHandler ausgelöst');
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .reprompt(speakOutput)
@@ -64,52 +138,42 @@ const CancelAndStopIntentHandler = {
                 || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StopIntent');
     },
     handle(handlerInput) {
-        const speakOutput = 'Goodbye!';
-
+        const speakOutput = 'Auf Wiedersehen!';
+        console.log('CancelAndStopIntentHandler ausgelöst');
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .getResponse();
     }
 };
-/* *
- * FallbackIntent triggers when a customer says something that doesn’t map to any intents in your skill
- * It must also be defined in the language model (if the locale supports it)
- * This handler can be safely added but will be ingnored in locales that do not support it yet 
- * */
+
 const FallbackIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.FallbackIntent';
     },
     handle(handlerInput) {
-        const speakOutput = 'Sorry, I don\'t know about that. Please try again.';
-
+        const speakOutput = 'Entschuldigung, das weiß ich nicht. Bitte versuche es erneut.';
+        console.log('FallbackIntentHandler ausgelöst');
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .reprompt(speakOutput)
             .getResponse();
     }
 };
-/* *
- * SessionEndedRequest notifies that a session was ended. This handler will be triggered when a currently open 
- * session is closed for one of the following reasons: 1) The user says "exit" or "quit". 2) The user does not 
- * respond or says something that does not match an intent defined in your voice model. 3) An error occurs 
- * */
+
 const SessionEndedRequestHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'SessionEndedRequest';
     },
     handle(handlerInput) {
         console.log(`~~~~ Session ended: ${JSON.stringify(handlerInput.requestEnvelope)}`);
-        // Any cleanup logic goes here.
-        return handlerInput.responseBuilder.getResponse(); // notice we send an empty response
+        if (handlerInput.requestEnvelope.request.error) {
+            console.log(`~~~~ Error: ${JSON.stringify(handlerInput.requestEnvelope.request.error)}`);
+        }
+        return handlerInput.responseBuilder.getResponse();
     }
 };
-/* *
- * The intent reflector is used for interaction model testing and debugging.
- * It will simply repeat the intent the user said. You can create custom handlers for your intents 
- * by defining them above, then also adding them to the request handler chain below 
- * */
+
 const IntentReflectorHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest';
@@ -117,26 +181,20 @@ const IntentReflectorHandler = {
     handle(handlerInput) {
         const intentName = Alexa.getIntentName(handlerInput.requestEnvelope);
         const speakOutput = `You just triggered ${intentName}`;
-
+        console.log('IntentReflectorHandler ausgelöst');
         return handlerInput.responseBuilder
             .speak(speakOutput)
-            //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
             .getResponse();
     }
 };
-/**
- * Generic error handling to capture any syntax or routing errors. If you receive an error
- * stating the request handler chain is not found, you have not implemented a handler for
- * the intent being invoked or included it in the skill builder below 
- * */
+
 const ErrorHandler = {
     canHandle() {
         return true;
     },
     handle(handlerInput, error) {
-        const speakOutput = 'Sorry, I had trouble doing what you asked. Please try again.';
+        const speakOutput = 'Entschuldigung, es gab ein Problem bei der Ausführung deiner Anfrage. Bitte versuche es erneut.';
         console.log(`~~~~ Error handled: ${JSON.stringify(error)}`);
-
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .reprompt(speakOutput)
@@ -144,21 +202,17 @@ const ErrorHandler = {
     }
 };
 
-/**
- * This handler acts as the entry point for your skill, routing all request and response
- * payloads to the handlers above. Make sure any new handlers or interceptors you've
- * defined are included below. The order matters - they're processed top to bottom 
- * */
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
         HelloWorldIntentHandler,
+        AskQuestionIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         FallbackIntentHandler,
         SessionEndedRequestHandler,
-        IntentReflectorHandler)
-    .addErrorHandlers(
-        ErrorHandler)
+        IntentReflectorHandler
+    )
+    .addErrorHandlers(ErrorHandler)
     .withCustomUserAgent('sample/hello-world/v1.2')
     .lambda();

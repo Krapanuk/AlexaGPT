@@ -1,53 +1,50 @@
 {
   "interactionModel": {
-    "languageModel": {
-      "intents": [
-        {
-          "name": "AMAZON.CancelIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.HelpIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.StopIntent",
-          "samples": []
-        },
-        {
-          "slots": [],
-          "name": "HelloWorldIntent",
-          "samples": [
-            "hallo",
-            "wie geht\u0027s dir",
-            "sag hallo welt",
-            "sag hallo"
-          ]
-        },
-        {
-          "name": "AMAZON.NavigateHomeIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.FallbackIntent",
-          "samples": []
-        },
-        {
-          "slots": [
-            {
-              "name": "question",
-              "type": "AMAZON.SearchQuery"
-            }
+      "languageModel": {
+          "invocationName": "olli g. p. t.",
+          "intents": [
+              {
+                  "name": "AMAZON.CancelIntent",
+                  "samples": []
+              },
+              {
+                  "name": "AMAZON.HelpIntent",
+                  "samples": []
+              },
+              {
+                  "name": "AMAZON.StopIntent",
+                  "samples": []
+              },
+              {
+                  "name": "HelloWorldIntent",
+                  "slots": [],
+                  "samples": [
+                      "hallo",
+                      "sag hallo welt",
+                      "sag hallo"
+                  ]
+              },
+              {
+                  "name": "AskQuestionIntent",
+                  "slots": [
+                      {
+                          "name": "question",
+                          "type": "AMAZON.SearchQuery"
+                      }
+                  ],
+                  "samples": [
+                      "frag {question}",
+                      "frage {question}",
+                      "Frage {question}",
+                      "Meine Frage {question}"
+                  ]
+              },
+              {
+                  "name": "AMAZON.NavigateHomeIntent",
+                  "samples": []
+              }
           ],
-          "name": "AskChatgpt",
-          "samples": [
-            "what {question}",
-            "ask {question}"
-          ]
-        }
-      ],
-      "types": [],
-      "invocationName": "ollis g. p. t."
-    }
+          "types": []
+      }
   }
 }
