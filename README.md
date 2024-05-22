@@ -32,7 +32,9 @@ Now your skills basic template will be created (that will take about 1 minute).
   - Skill Invocation Name: Set your Skills invocation name (The name you have to speak to open your skill: 'Alexa, open ...')
 - Interaction Model:
   - Intents:
-    - JSON Editor: Just copy&paste the code from \interactionModels\custom\de-DE.json
+    - JSON Editor: Just copy&paste the code from the sample
+      - for English language version: \interactionModels\custom\en-US.json
+      - for German language version: \interactionModels\custom\de-DE.json
 
 ### Code
 Now go to "Code" in the top menu bar. Just 
