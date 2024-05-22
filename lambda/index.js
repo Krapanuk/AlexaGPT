@@ -13,7 +13,7 @@ const LaunchRequestHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
     handle(handlerInput) {
-        const speakOutput = 'Welcome to MyGPT. Say My question is, followed by your question, to aske me a question!';
+        const speakOutput = 'Welcome to MyGPT. Say My question is, followed by your question, to ask me a question!';
         const repromptOutput = 'Please ask a question or say Stopp to end.';
         return handlerInput.responseBuilder
             .speak(speakOutput)
