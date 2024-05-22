@@ -48,11 +48,11 @@ const AskQuestionIntentHandler = {
                 top_p: 1,
             });
 
-            if (response && response.data && response.data.choices && response.data.choices.length > 0) {
+            if (response?.data && response.data.choices && response.data.choices.length > 0) {
                 speakOutput = response.data.choices[0].message.content.trim();
             }
         } catch (error) {
-            const speakOutput = 'Fehler bei der Kommunikation mit ChatGPT. Bitte versuche es erneut.';
+            console.error('Fehler bei der Kommunikation mit der OpenAI-API:', error);
         }
         return handlerInput.responseBuilder
             .speak(speakOutput)
