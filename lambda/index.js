@@ -13,7 +13,7 @@ const LaunchRequestHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
     handle(handlerInput) {
-        const speakOutput = 'Willkommen bei Olli GPT. Sag Frage, gefolgt von Deiner Frage, um mir eine Frage zu stellen!';
+        const speakOutput = 'Welcome to MyGPT. Say My question is, followed by your question, to aske me a question!';
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .reprompt(speakOutput)
@@ -28,7 +28,7 @@ const AskQuestionIntentHandler = {
     },
     async handle(handlerInput) {
         const question = handlerInput.requestEnvelope.request.intent.slots.question.value;
-        let speakOutput = 'Es gab ein Problem bei der Kommunikation mit ChatGPT. Bitte versuche es erneut.';
+        let speakOutput = 'There was a problem communicating with ChatGPT. Please try again.';
 
         try {
             const response = await openai.createChatCompletion({
@@ -36,7 +36,7 @@ const AskQuestionIntentHandler = {
                 messages: [
                     {
                         "role": "system",
-                        "content": "Du bist mein freundlicher persoenlicher Assistent, der mir alle meine Fragen, kurz und knapp in maximal 5 Saetzen, beantwortet."
+                        "content": "You are my friendly personal assistant, answering my question in a few words with less than 5 sentences."
                     },
                     {
                         "role": "user",
@@ -52,24 +52,10 @@ const AskQuestionIntentHandler = {
                 speakOutput = response.data.choices[0].message.content.trim();
             }
         } catch (error) {
-            console.error('Fehler bei der Kommunikation mit der OpenAI-API:', error);
+            console.error('Error communicating with OpenAI-API:', error);
         }
         return handlerInput.responseBuilder
             .speak(speakOutput)
-            .getResponse();
-    }
-};
-
-const HelpIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
-    },
-    handle(handlerInput) {
-        const speakOutput = 'Du kannst Hallo sagen oder eine Frage stellen, um eine Antwort zu erhalten.';
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt(speakOutput)
             .getResponse();
     }
 };
@@ -81,7 +67,7 @@ const CancelAndStopIntentHandler = {
                 || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StopIntent');
     },
     handle(handlerInput) {
-        const speakOutput = 'Auf Wiedersehen!';
+        const speakOutput = 'Goodby!';
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .getResponse();
@@ -94,7 +80,7 @@ const FallbackIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.FallbackIntent';
     },
     handle(handlerInput) {
-        const speakOutput = 'Entschuldigung, das weiß ich nicht. Bitte versuche es erneut.';
+        const speakOutput = 'Sorry, I dont know that. Please try again.';
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .reprompt(speakOutput)
@@ -129,7 +115,7 @@ const ErrorHandler = {
         return true;
     },
     handle(handlerInput, error) {
-        const speakOutput = 'Entschuldigung, es gab ein Problem bei der Ausführung deiner Anfrage. Bitte versuche es erneut.';
+        const speakOutput = 'Sorry, there was a problem executing your request. Please try again.';
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .reprompt(speakOutput)
@@ -141,7 +127,6 @@ exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
         AskQuestionIntentHandler,
-        HelpIntentHandler,
         CancelAndStopIntentHandler,
         FallbackIntentHandler,
         SessionEndedRequestHandler,
