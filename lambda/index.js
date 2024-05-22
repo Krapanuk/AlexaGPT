@@ -1,9 +1,9 @@
 const Alexa = require('ask-sdk-core');
 const { Configuration, OpenAIApi } = require('openai');
-const keys = require('./Keys');  // Stelle sicher, dass du deinen OpenAI-API-Schlüssel in dieser Datei gespeichert hast
+const key = require('./Key');
 
 const config = new Configuration({
-    apiKey: keys.OPEN_AI_KEY
+    apiKey: key.OPEN_AI_KEY
 });
 
 const openai = new OpenAIApi(config);
@@ -13,58 +13,10 @@ const LaunchRequestHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
     handle(handlerInput) {
-        const speakOutput = 'Willkommen bei Olli GPT. Du kannst eine Frage stellen!';
-        console.log('LaunchRequestHandler ausgelöst');
+        const speakOutput = 'Willkommen bei Olli GPT. Sag Frage, gefolgt von Deiner Frage, um mir eine Frage zu stellen!';
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .reprompt(speakOutput)
-            .getResponse();
-    }
-};
-
-const HelloWorldIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'HelloWorldIntent';
-    },
-    async handle(handlerInput) {
-        const defaultPrompt = "Hi! Leider habe ich Deine Frage nicht verstanden";
-        let speakOutput = 'Es gab ein Problem bei der Kommunikation mit ChatGPT. Bitte versuche es erneut.';
-
-        try {
-            console.log(`Sending prompt to ChatGPT: ${defaultPrompt}`);
-            const response = await openai.createChatCompletion({
-                model: "gpt-4o",
-                messages: [
-                    {
-                        "role": "system",
-                        "content": "Du bist mein freundlicher persoenlicher Assistent, der mir alle meine Fragen beantwortet."
-                    },
-                    {
-                        "role": "user",
-                        "content": defaultPrompt
-                    }
-                ],
-                temperature: 0.7,
-                max_tokens: 64,
-                top_p: 1,
-            });
-
-            console.log(`Received response from ChatGPT: ${JSON.stringify(response.data)}`);
-
-            if (response && response.data && response.data.choices && response.data.choices.length > 0) {
-                speakOutput = response.data.choices[0].message.content.trim();
-            } else {
-                console.error('Keine gültige Antwort von ChatGPT erhalten.');
-            }
-        } catch (error) {
-            console.error('Fehler bei der Kommunikation mit der OpenAI-API:', error);
-        }
-
-        console.log(`Antwort an Benutzer: ${speakOutput}`);
-
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
             .getResponse();
     }
 };
@@ -79,7 +31,6 @@ const AskQuestionIntentHandler = {
         let speakOutput = 'Es gab ein Problem bei der Kommunikation mit ChatGPT. Bitte versuche es erneut.';
 
         try {
-            console.log(`User question: ${question}`);
             const response = await openai.createChatCompletion({
                 model: "gpt-4o",
                 messages: [
@@ -97,19 +48,12 @@ const AskQuestionIntentHandler = {
                 top_p: 1,
             });
 
-            console.log(`Received response from ChatGPT: ${JSON.stringify(response.data)}`);
-
             if (response && response.data && response.data.choices && response.data.choices.length > 0) {
                 speakOutput = response.data.choices[0].message.content.trim();
-            } else {
-                console.error('Keine gültige Antwort von ChatGPT erhalten.');
             }
         } catch (error) {
-            console.error('Fehler bei der Kommunikation mit der OpenAI-API:', error);
+            const speakOutput = 'Fehler bei der Kommunikation mit ChatGPT. Bitte versuche es erneut.';
         }
-
-        console.log(`Antwort an Benutzer: ${speakOutput}`);
-
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .getResponse();
@@ -123,7 +67,6 @@ const HelpIntentHandler = {
     },
     handle(handlerInput) {
         const speakOutput = 'Du kannst Hallo sagen oder eine Frage stellen, um eine Antwort zu erhalten.';
-        console.log('HelpIntentHandler ausgelöst');
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .reprompt(speakOutput)
@@ -139,7 +82,6 @@ const CancelAndStopIntentHandler = {
     },
     handle(handlerInput) {
         const speakOutput = 'Auf Wiedersehen!';
-        console.log('CancelAndStopIntentHandler ausgelöst');
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .getResponse();
@@ -153,7 +95,6 @@ const FallbackIntentHandler = {
     },
     handle(handlerInput) {
         const speakOutput = 'Entschuldigung, das weiß ich nicht. Bitte versuche es erneut.';
-        console.log('FallbackIntentHandler ausgelöst');
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .reprompt(speakOutput)
@@ -166,10 +107,6 @@ const SessionEndedRequestHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'SessionEndedRequest';
     },
     handle(handlerInput) {
-        console.log(`~~~~ Session ended: ${JSON.stringify(handlerInput.requestEnvelope)}`);
-        if (handlerInput.requestEnvelope.request.error) {
-            console.log(`~~~~ Error: ${JSON.stringify(handlerInput.requestEnvelope.request.error)}`);
-        }
         return handlerInput.responseBuilder.getResponse();
     }
 };
@@ -181,7 +118,6 @@ const IntentReflectorHandler = {
     handle(handlerInput) {
         const intentName = Alexa.getIntentName(handlerInput.requestEnvelope);
         const speakOutput = `You just triggered ${intentName}`;
-        console.log('IntentReflectorHandler ausgelöst');
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .getResponse();
@@ -194,7 +130,6 @@ const ErrorHandler = {
     },
     handle(handlerInput, error) {
         const speakOutput = 'Entschuldigung, es gab ein Problem bei der Ausführung deiner Anfrage. Bitte versuche es erneut.';
-        console.log(`~~~~ Error handled: ${JSON.stringify(error)}`);
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .reprompt(speakOutput)
@@ -205,7 +140,6 @@ const ErrorHandler = {
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
-        HelloWorldIntentHandler,
         AskQuestionIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,

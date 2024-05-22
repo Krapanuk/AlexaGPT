@@ -1,50 +1,41 @@
 {
-  "interactionModel": {
-      "languageModel": {
-          "invocationName": "olli g. p. t.",
-          "intents": [
-              {
-                  "name": "AMAZON.CancelIntent",
-                  "samples": []
-              },
-              {
-                  "name": "AMAZON.HelpIntent",
-                  "samples": []
-              },
-              {
-                  "name": "AMAZON.StopIntent",
-                  "samples": []
-              },
-              {
-                  "name": "HelloWorldIntent",
-                  "slots": [],
-                  "samples": [
-                      "hallo",
-                      "sag hallo welt",
-                      "sag hallo"
-                  ]
-              },
-              {
-                  "name": "AskQuestionIntent",
-                  "slots": [
-                      {
-                          "name": "question",
-                          "type": "AMAZON.SearchQuery"
-                      }
-                  ],
-                  "samples": [
-                      "frag {question}",
-                      "frage {question}",
-                      "Frage {question}",
-                      "Meine Frage {question}"
-                  ]
-              },
-              {
-                  "name": "AMAZON.NavigateHomeIntent",
-                  "samples": []
-              }
-          ],
-          "types": []
-      }
-  }
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "olli g. p. t.",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AskQuestionIntent",
+                    "slots": [
+                        {
+                            "name": "question",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "frag {question}",
+                        "frage {question}",
+                        "Frage {question}",
+                        "Meine Frage {question}"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                }
+            ],
+            "types": []
+        }
+    }
 }
