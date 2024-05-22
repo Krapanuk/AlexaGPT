@@ -1,0 +1,41 @@
+{
+  "interactionModel": {
+      "languageModel": {
+          "invocationName": "my g. p. t.",
+          "intents": [
+              {
+                  "name": "AMAZON.CancelIntent",
+                  "samples": []
+              },
+              {
+                  "name": "AMAZON.HelpIntent",
+                  "samples": []
+              },
+              {
+                  "name": "AMAZON.StopIntent",
+                  "samples": []
+              },
+              {
+                  "name": "AskQuestionIntent",
+                  "slots": [
+                      {
+                          "name": "question",
+                          "type": "AMAZON.SearchQuery"
+                      }
+                  ],
+                  "samples": [
+                      "ask {question}",
+                      "question {question}",
+                      "My question {question}",
+                      "My question is {question}"
+                  ]
+              },
+              {
+                  "name": "AMAZON.NavigateHomeIntent",
+                  "samples": []
+              }
+          ],
+          "types": []
+      }
+  }
+}
